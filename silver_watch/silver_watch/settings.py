@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     # Custom Apps
     'userManager',
     'devices',
+    'vitals',
 ]
 
 MIDDLEWARE = [
