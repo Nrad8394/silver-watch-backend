@@ -63,6 +63,7 @@ INSTALLED_APPS = [
 
     # Custom Apps
     'userManager',
+    'devices',
 ]
 
 MIDDLEWARE = [
