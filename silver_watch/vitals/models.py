@@ -32,9 +32,11 @@ class VitalSigns(models.Model):
 
     class Meta:
         ordering = ["-timestamp"]
+        verbose_name_plural = "Vital Signs"
 
     def __str__(self):
         return f"Vitals for {self.patient} - {self.timestamp}"
+    
 
 
 class HealthMetrics(models.Model):
@@ -50,6 +52,7 @@ class HealthMetrics(models.Model):
 
     class Meta:
         ordering = ["-date"]
+        verbose_name_plural = "Health Metrics"
 
     def __str__(self):
         return f"Metrics for {self.patient} - {self.date}"
@@ -57,15 +60,17 @@ class HealthMetrics(models.Model):
 
 class MedicalHistory(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="medical_history", limit_choices_to={'role': 'patient'})
-
-    conditions = models.JSONField(default=list)
-    allergies = models.JSONField(default=list)
-    surgeries = models.JSONField(default=list)
-    medications = models.JSONField(default=list)
+    patient = models.OneToOneField(User, on_delete=models.CASCADE, related_name="medical_history", limit_choices_to={'role': 'patient'})
+    conditions = models.JSONField(default=list, null=True, blank=True)
+    allergies = models.JSONField(default=list, null=True, blank=True)
+    surgeries = models.JSONField(default=list, null=True, blank=True)
+    medications = models.JSONField(default=list, null=True, blank=True)
 
     def __str__(self):
         return f"Medical History for {self.patient}"
+    
+    class Meta:
+        verbose_name_plural = "Medical History"
 
 
 class HealthTrend(models.Model):
@@ -87,3 +92,6 @@ class HealthTrend(models.Model):
 
     def __str__(self):
         return f"Trend for {self.patient} - {self.metric}"
+    
+    class Meta:
+        verbose_name_plural = "Health Trends"

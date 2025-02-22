@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'userManager',
     'devices',
     'vitals',
+    'alerts',
 ]
 
 MIDDLEWARE = [
