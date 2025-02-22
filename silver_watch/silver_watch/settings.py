@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'devices',
     'vitals',
     'alerts',
+    'appointments',
 ]
 
 MIDDLEWARE = [

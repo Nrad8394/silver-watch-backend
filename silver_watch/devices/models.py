@@ -112,7 +112,7 @@ class DeviceMaintenance(models.Model):
 
 
 class DeviceReading(models.Model):
-    id = models.UUIDField(primary_key=True, default=models.UUIDField, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name="readings")
     timestamp = models.DateTimeField(auto_now_add=True)
     reading_type = models.CharField(max_length=100)  # E.g., Heart Rate, Temperature
