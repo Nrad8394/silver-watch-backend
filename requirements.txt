@@ -29,6 +29,7 @@ incremental
 msgpack
 phonenumbers
 pillow
+psycopg2-binary
 pyasn1
 pyasn1_modules
 pycparser
@@ -52,4 +53,3 @@ tzdata
 urllib3
 whitenoise
 zope.interface
-psycopg2
