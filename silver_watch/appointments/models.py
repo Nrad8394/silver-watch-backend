@@ -57,8 +57,8 @@ class Schedule(models.Model):
         related_name="schedule", 
         limit_choices_to=Q(role='patient') | Q(role='caregiver'))
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    availability = models.JSONField(default=list)
-    breaks = models.JSONField(default=list)
+    availability = models.JSONField(default=list, blank=True, null=True)
+    breaks = models.JSONField(default=list, blank=True, null=True)
 
     def __str__(self):
         return f"Schedule for {self.user}"

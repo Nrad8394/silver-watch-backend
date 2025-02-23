@@ -55,7 +55,7 @@ class AppointmentAdmin(admin.ModelAdmin):
 
 @admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ("user", "role", "availability_summary", "total_appointments")
+    list_display = ("user", "role", "availability_summary")
     search_fields = ("user__full_name",)
     ordering = ("user",)
 
@@ -63,9 +63,6 @@ class ScheduleAdmin(admin.ModelAdmin):
         return f"{len(obj.availability)} Days Available"
     availability_summary.short_description = "Availability"
 
-    def total_appointments(self, obj):
-        return obj.appointments.count()
-    total_appointments.short_description = "Appointments"
 
 
 @admin.register(Reminder)

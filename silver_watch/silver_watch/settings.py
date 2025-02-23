@@ -32,10 +32,12 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
 INSTALLED_APPS = [
     # module apps
+    'daphne',
     'jazzmin',
     'corsheaders',
     'django_daraja',
     'django_extensions',
+    'channels',
 
     # django rest auth config apps
     'rest_framework_simplejwt',
@@ -67,6 +69,7 @@ INSTALLED_APPS = [
     'vitals',
     'alerts',
     'appointments',
+    'chats',
 ]
 
 MIDDLEWARE = [
@@ -101,8 +104,22 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'silver_watch.wsgi.application'
+ASGI_APPLICATION = "silver_watch.asgi.application"
 
-
+# WebSocket Layer using Redis
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",  # Temporary, replace with Redis
+    }
+}
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("127.0.0.1", 6379)],  # Redis Server
+#         },
+#     }
+# }
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
