@@ -344,6 +344,13 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
 
+    # 👇 ADD THIS TO MAKE DJANGO CHECK FOR COOKIES
+    "AUTH_COOKIE_NAME": "access",
+    "AUTH_COOKIE_PATH": "/",
+    "AUTH_COOKIE_HTTP_ONLY": False,  # Set to True in production
+    "AUTH_COOKIE_SECURE": False,  # Set to True in production
+    "AUTH_COOKIE_SAMESITE": "Lax",
+    
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
