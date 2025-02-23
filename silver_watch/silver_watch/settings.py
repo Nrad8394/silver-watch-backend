@@ -312,8 +312,8 @@ REST_AUTH = {
     'SESSION_LOGIN': False,
     'USE_JWT': True,
 
-    'JWT_AUTH_COOKIE': '',
-    'JWT_AUTH_REFRESH_COOKIE': '',
+    'JWT_AUTH_COOKIE': '_auth',
+    'JWT_AUTH_REFRESH_COOKIE': '_refresh',
     'JWT_AUTH_REFRESH_COOKIE_PATH': '/',
     'JWT_AUTH_SECURE': True,
     'JWT_AUTH_HTTPONLY': True,
