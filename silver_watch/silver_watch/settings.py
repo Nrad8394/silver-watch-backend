@@ -70,6 +70,8 @@ INSTALLED_APPS = [
     'alerts',
     'appointments',
     'chats',
+    'reports',
+    'settings',
 ]
 
 MIDDLEWARE = [

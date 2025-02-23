@@ -29,6 +29,8 @@ urlpatterns = [
     path('alerts/', include('alerts.urls')),
     path('appointments/', include('appointments.urls')),
     path('chats/', include('chats.urls')),
+    path('reports/', include('reports.urls')),
+    path('settings/', include('settings.urls')),
     # dj_allauth endpoints    
     path('', include('dj_rest_auth.urls')),
     path('register/', include('dj_rest_auth.registration.urls')),
