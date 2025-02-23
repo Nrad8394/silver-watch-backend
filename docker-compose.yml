@@ -73,9 +73,7 @@ services:
     command: >
       sh -c "python manage.py makemigrations | tee -a /app/logs/output.log || echo 'makemigrations failed' | tee -a /app/logs/output.log; 
             python manage.py migrate | tee -a /app/logs/output.log || echo 'migrate failed' | tee -a /app/logs/output.log; 
-            python manage.py collectstatic --noinput | tee -a /app/logs/output.log || echo 'collectstatic failed' | tee -a /app/logs/output.log;  
-            python manage.py mqtt_subscribe & 
-            daphne -b 0.0.0.0 -p 8000 Golden_Care.asgi:application"
+            python manage.py migrate && gunicorn --bind 0.0.0.0:8000 silver_watch.wsgi:application --log-level info | tee -a /app/logs/output.log"
     networks:
       - backend-network
 
