@@ -339,6 +339,13 @@ SIMPLE_JWT = {
     "JWK_URL": None,
     "LEEWAY": 0,
 
+    "COOKIE_NAME": "refresh_token",  # Custom refresh token cookie name
+    "COOKIE_SECURE": False,  # Change to True in production (HTTPS only)
+    "COOKIE_HTTPONLY": True,  # Prevents JavaScript from accessing it
+    "COOKIE_SAMESITE": "None",  # Allows cross-site requests
+    "COOKIE_PATH": "/",  # Allows the cookie to be sent to any path
+    
+    
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
