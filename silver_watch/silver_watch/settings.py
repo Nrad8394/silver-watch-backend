@@ -320,7 +320,7 @@ REST_AUTH = {
     'JWT_AUTH_HTTPONLY': True,
     'JWT_AUTH_SAMESITE': "None",
     'JWT_AUTH_RETURN_EXPIRATION': False,
-    'JWT_AUTH_COOKIE_USE_CSRF': False,
+    'JWT_AUTH_COOKIE_USE_CSRF': True,
     'JWT_AUTH_COOKIE_ENFORCE_CSRF_ON_UNAUTHENTICATED': False,
 }
 SIMPLE_JWT = {
@@ -345,7 +345,6 @@ SIMPLE_JWT = {
     "COOKIE_SAMESITE": "None",  # Allows cross-site requests
     "COOKIE_PATH": "/",  # Allows the cookie to be sent to any path
     
-
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
