@@ -5,18 +5,15 @@ from allauth.account.models import EmailConfirmationHMAC, EmailConfirmation
 from rest_framework import  status,permissions
 from rest_framework.response import Response
 from .models import CustomUser
-from .serializers import ResendEmailVerificationSerializer,CustomTokenRefreshSerializer
+from .serializers import ResendEmailVerificationSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import action
 from dj_rest_auth.views import PasswordResetView
 from django.conf import settings
-from rest_framework_simplejwt.views import TokenRefreshView
 from allauth.account.models import EmailAddress  # Import EmailAddress from allauth
 from django.utils.translation import gettext_lazy as _
 
-class CustomTokenRefreshView(TokenRefreshView):
-    serializer_class = CustomTokenRefreshSerializer
 class IsAdminUser(permissions.BasePermission):
     """
     Custom permission to allow only admin users.

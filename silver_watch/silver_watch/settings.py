@@ -264,6 +264,7 @@ TRANSACTION_TYPE=config('TRANSACTION_TYPE')
 # REST Framework configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
@@ -309,16 +310,16 @@ REST_AUTH = {
     'PASSWORD_RESET_USE_SITES_DOMAIN': False,
     'OLD_PASSWORD_FIELD_ENABLED': False,
     'LOGOUT_ON_PASSWORD_CHANGE': False,
-    'SESSION_LOGIN': False,
+    'SESSION_LOGIN': True,
     'USE_JWT': True,
 
-    'JWT_AUTH_COOKIE': 'access',
-    'JWT_AUTH_REFRESH_COOKIE': 'refresh',
+    'JWT_AUTH_COOKIE': 'access_token',
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh_token',
     'JWT_AUTH_REFRESH_COOKIE_PATH': '/',
     'JWT_AUTH_SECURE': False,
-    'JWT_AUTH_HTTPONLY': False,
+    'JWT_AUTH_HTTPONLY': True,
     'JWT_AUTH_SAMESITE': 'Lax',
-    'JWT_AUTH_RETURN_EXPIRATION': True,
+    'JWT_AUTH_RETURN_EXPIRATION': False,
     'JWT_AUTH_COOKIE_USE_CSRF': True,
     'JWT_AUTH_COOKIE_ENFORCE_CSRF_ON_UNAUTHENTICATED': False,
 }
@@ -344,13 +345,6 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
 
-    # 👇 ADD THIS TO MAKE DJANGO CHECK FOR COOKIES
-    "AUTH_COOKIE_NAME": "access",
-    "AUTH_COOKIE_PATH": "/",
-    "AUTH_COOKIE_HTTP_ONLY": False,  # Set to True in production
-    "AUTH_COOKIE_SECURE": False,  # Set to True in production
-    "AUTH_COOKIE_SAMESITE": "Lax",
-    
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",

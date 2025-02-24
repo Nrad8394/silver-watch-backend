@@ -1,6 +1,6 @@
 from django.urls import path, include,re_path
 from rest_framework.routers import DefaultRouter
-from .core import CustomPasswordResetView, confirm_email,ResendEmailVerificationView, email_confirmation_done, email_confirmation_failure,CustomPasswordResetConfirmView ,CustomTokenRefreshView
+from .core import CustomPasswordResetView, confirm_email,ResendEmailVerificationView, email_confirmation_done, email_confirmation_failure,CustomPasswordResetConfirmView 
 from dj_rest_auth.views import PasswordResetConfirmView
 from .views import (
     CustomUserViewSet,
@@ -25,8 +25,5 @@ urlpatterns = [
     path('user/password/reset/', CustomPasswordResetView.as_view(), name='password_reset'),
     path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     re_path('api/reset/', PasswordResetConfirmView.as_view(), name='rest_password_reset_confirm'),
-
-    path('token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
-
 
 ]
