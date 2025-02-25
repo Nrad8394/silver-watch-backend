@@ -1,10 +1,148 @@
-version: '3.4'
+
+# This is a Docker Compose file that defines the services and their
+# configurations for the GoldenCare project.
+
+# The services include:
+#   - cube: a Cube.js service for analytics and data visualization
+#   - postgres: a PostgreSQL database for storing data
+#   - django: a Django web application for managing data
+#   - nginx: a web server for serving static files and reverse proxying the
+#     Django application
+#   - redis: a Redis database for storing session data and caching
+#   - ftp: an FTP server for transferring files
+#   - emqx: an MQTT broker for IoT devices
+
+# The volumes mount the following directories:
+#   - ./nginx: configurations for the Nginx web server
+#   - ./static: static files for the Django application
+#   - ./media: media files for the Django application
+#   - ./logs: logs for the Django application
+#   - ./emqx_data: data for the EMQX MQTT broker
+#   - ./emqx_log: logs for the EMQX MQTT broker
 
 services:
-  silverwatchbackend:
+  cube:
+    image: cubejs/cube:latest
+    ports:
+      - "4000:4000"
+      - "15432:15432"
+    environment:
+      - CUBEJS_DB_TYPE=postgres
+      - CUBEJS_DEV_MODE=true
+      - RUST_BACKTRACE=full
+      - CUBEJS_API_SECRET=your-secret-key  # Replace with a strong, unique key
+      - CUBEJS_DB_HOST=postgres
+      - CUBEJS_DB_NAME=gc_db
+      - CUBEJS_DB_USER=postgres
+      - CUBEJS_DB_PASS=root_password
+      - CUBEJS_DB_PORT=5432
+    volumes:
+      - .:/cube/conf
+    depends_on:
+      - postgres
+    networks:
+      - backend-network
+
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: gc_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
+      
+
+  django:
     image: silverwatchbackend
     build:
       context: .
       dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - .:/app/
+      - static_volume:/app/static  # Mount volume for static files
+      - media_volume:/app/media    # Mount volume for media files
+    depends_on:
+      - postgres  
+      - redis
+      - emqx
+    command: >
+      sh -c "cd silver_watch && 
+      python manage.py migrate | tee -a /app/logs/output.log || echo 'migrate failed' | tee -a /app/logs/output.log; 
+            gunicorn --bind 0.0.0.0:8000 silver_watch.wsgi:application"
+    networks:
+      - backend-network
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - static_volume:/app/static  # Serve static files
+      - media_volume:/app/media    # Serve media files
     ports:
-      - 8000:8000
+      - "80:80"
+    depends_on:
+      - django
+    networks:
+      - backend-network
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - backend-network
+
+  ftp:
+    image: fauria/vsftpd
+    environment:
+      - FTP_USER=user  # Your FTP username
+      - FTP_PASS=password  # Your FTP password
+      - PASV_ADDRESS=127.0.0.1  # You can replace with your server's IP or domain name
+      - PASV_MIN_PORT=21100
+      - PASV_MAX_PORT=21110
+      - FILE_OPEN_MODE=0666
+      - LOCAL_UMASK=022
+    ports:
+      - "20:20"
+      - "21:21"
+      - "21100-21110:21100-21110"  # FTP passive ports
+    volumes:
+      - static_volume:/home/vsftpd/static  # Map static files to FTP
+      - media_volume:/home/vsftpd/media    # Map media files to FTP
+    networks:
+      - backend-network
+
+  emqx:
+    image: emqx:latest
+    environment:
+      - EMQX_LISTENERS__TCP__DEFAULT__BIND=1883
+      - EMQX_ADMIN_PASSWORD=user@12345  # Set admin password
+      - EMQX_ADMIN_USER=admin      # Set admin username
+      - EMQX_LOADED_MODULES=emqx_management,emqx_dashboard
+    ports:
+      - "18083:18083"  # Management Dashboard
+      - "1883:1883"    # MQTT Broker
+      - "8080:8080"    # HTTP API
+    volumes:
+      - emqx_data:/opt/emqx/data    # Persistent data
+      - emqx_log:/opt/emqx/log      # Persistent logs
+    networks:
+      - backend-network
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  emqx_data:
+  emqx_log:
+
+networks:
+  backend-network:
+

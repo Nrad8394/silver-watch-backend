@@ -1,0 +1,29 @@
+@startuml
+skinparam sequenceArrowThickness 2
+skinparam sequenceMessageAlign center
+title **Sequence Diagram - IoT Health Monitoring System**
+
+participant "Patient Device" as Device
+participant "MQTT Broker" as MQTT
+participant "Backend System" as Backend
+participant "Database" as DB
+participant "Caregiver" as Caregiver
+participant "Doctor" as Doctor
+
+Device -> MQTT: Send health data (temperature, heart rate, oxygen)
+MQTT -> Backend: Forward data via API
+Backend -> DB: Store health record
+
+Backend -> Backend: Analyze Data (Abnormality Detection)
+alt If abnormal readings detected
+  Backend -> Caregiver: Notify about emergency alert
+  Backend -> Doctor: Send alert for review
+end
+
+Caregiver -> Backend: Acknowledge alert
+Doctor -> Backend: View patient reports
+
+Backend -> DB: Retrieve historical data
+Doctor -> Doctor: Analyze patient trends
+
+@enduml

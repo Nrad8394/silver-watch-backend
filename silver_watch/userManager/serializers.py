@@ -99,10 +99,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = [
-            'id', 'email', 'first_name', 'last_name', 'role', 'status', 'phone_number',
-            'profile_image', 'last_active', 'group_names', 'profile'
-        ]
+        fields = '__all__'
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
         read_only_fields = ['id', 'email', 'group_names', 'profile']
 
     def get_group_names(self, obj):

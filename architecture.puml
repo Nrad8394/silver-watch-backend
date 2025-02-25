@@ -1,0 +1,32 @@
+@startuml
+skinparam linetype ortho
+title **IoT-Based Health Monitoring System Architecture**
+
+actor "Patient" as Patient
+actor "Caregiver" as Caregiver
+actor "Doctor" as Doctor
+
+package "IoT Devices (ESP32 & Sensors)" {
+  Patient --> "DHT11 (Temp/Humidity)"
+  Patient --> "MPU9050 (Gyroscope/Accelerometer)"
+  Patient --> "MAX30105 (Heart Rate/SpO2)"
+  "ESP32 IoT Gateway" --> "MQTT Broker (EMQX)"
+}
+
+package "Cloud Infrastructure" {
+  package "Backend (Django DRF)" {
+    "Django API" --> "PostgreSQL Database"
+    "Django API" --> "Data Processing Engine (Cube.js)"
+  }
+  "MQTT Broker (EMQX)" --> "Django API"
+}
+
+package "Frontend Applications" {
+  Patient --> "Web Dashboard (Next.js)"
+  Doctor --> "Analytics & Reports (Next.js)"
+  Patient --> "Mobile App (React Native)"
+}
+
+"Frontend Applications" --> "Backend (Django DRF)"
+
+@enduml

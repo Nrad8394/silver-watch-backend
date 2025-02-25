@@ -125,22 +125,22 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # Change to PostgreSQL engine
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',  # Change to PostgreSQL engine
+#         'NAME': config('DB_NAME'),
+#         'USER': config('DB_USER'),
+#         'PASSWORD': config('DB_PASSWORD'),
+#         'HOST': config('DB_HOST'),
+#         'PORT': config('DB_PORT'),
+#     }
+# }
 
 # DATABASES = {
 #     'default': {
@@ -316,10 +316,10 @@ REST_AUTH = {
     'JWT_AUTH_COOKIE': 'access_token',
     'JWT_AUTH_REFRESH_COOKIE': 'refresh_token',
     'JWT_AUTH_REFRESH_COOKIE_PATH': '/',
-    'JWT_AUTH_SECURE': True,
-    'JWT_AUTH_HTTPONLY': True,
-    'JWT_AUTH_SAMESITE': "None",
-    'JWT_AUTH_RETURN_EXPIRATION': False,
+    'JWT_AUTH_SECURE': False,
+    'JWT_AUTH_HTTPONLY': True, 
+    'JWT_AUTH_SAMESITE': "lax",
+    'JWT_AUTH_RETURN_EXPIRATION': True,
     'JWT_AUTH_COOKIE_USE_CSRF': False,
     'JWT_AUTH_COOKIE_ENFORCE_CSRF_ON_UNAUTHENTICATED': False,
 }
@@ -342,7 +342,7 @@ SIMPLE_JWT = {
     "COOKIE_NAME": "refresh_token",  # Custom refresh token cookie name
     "COOKIE_SECURE": False,  # Change to True in production (HTTPS only)
     "COOKIE_HTTPONLY": True,  # Prevents JavaScript from accessing it
-    "COOKIE_SAMESITE": "None",  # Allows cross-site requests
+    "COOKIE_SAMESITE": "lax",  # Allows cross-site requests
     "COOKIE_PATH": "/",  # Allows the cookie to be sent to any path
     
     "AUTH_HEADER_TYPES": ("Bearer",),

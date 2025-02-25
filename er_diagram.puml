@@ -1,0 +1,79 @@
+@startuml
+skinparam linetype ortho
+title **Entity-Relationship Diagram - IoT-Based Health Monitoring System**
+
+entity User {
+  * id : UUID [PK]
+  ---
+  name : String
+  email : String
+  role : Enum {Patient, Caregiver, Doctor}
+  password_hash : String
+}
+
+entity Device {
+  * id : UUID [PK]
+  ---
+  device_id : String
+  device_type : Enum {ESP32, DHT11, MPU9050, MAX30105}
+  user_id : UUID [FK]
+}
+
+entity HealthRecord {
+  * id : UUID [PK]
+  ---
+  patient_id : UUID [FK]
+  device_id : UUID [FK]
+  timestamp : DateTime
+  temperature : Float
+  heart_rate : Integer
+  blood_oxygen : Integer
+  activity_level : String
+}
+
+entity Alert {
+  * id : UUID [PK]
+  ---
+  patient_id : UUID [FK]
+  alert_type : String
+  severity : Enum {Low, Medium, High}
+  timestamp : DateTime
+  status : Enum {New, Acknowledged, Resolved}
+}
+
+entity Report {
+  * id : UUID [PK]
+  ---
+  doctor_id : UUID [FK]
+  patient_id : UUID [FK]
+  date_generated : Date
+  summary : Text
+}
+
+entity MQTT_Log {
+  * id : UUID [PK]
+  ---
+  device_id : UUID [FK]
+  message : Text
+  timestamp : DateTime
+}
+
+entity Session {
+  * id : UUID [PK]
+  ---
+  user_id : UUID [FK]
+  login_time : DateTime
+  logout_time : DateTime
+  ip_address : String
+}
+
+' Relationships
+User ||--o{ Device : owns
+User ||--o{ HealthRecord : has
+User ||--o{ Alert : receives
+User ||--o{ Report : gets
+Device ||--o{ HealthRecord : collects
+Device ||--o{ MQTT_Log : logs
+User ||--o{ Session : logs in
+
+@enduml

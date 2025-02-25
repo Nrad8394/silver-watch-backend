@@ -1,0 +1,26 @@
+@startuml
+skinparam linetype ortho
+title **Use Case Diagram - IoT-Based Health Monitoring System**
+
+actor "Patient" as Patient
+actor "Caregiver" as Caregiver
+actor "Doctor" as Doctor
+actor "System" as System
+
+rectangle "IoT Health Monitoring System" {
+    usecase "Real-time Health Monitoring" as UC1
+    usecase "Emergency Alerts" as UC2
+    usecase "View Health Reports" as UC3
+    usecase "Data Analysis & Trends" as UC4
+    usecase "Remote Access to Patient Data" as UC5
+
+    Patient --> UC1
+    System --> UC1
+    System --> UC2
+    Caregiver --> UC2
+    Doctor --> UC3
+    Doctor --> UC4
+    Caregiver --> UC5
+    Doctor --> UC5
+}
+@enduml
