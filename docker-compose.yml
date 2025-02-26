@@ -30,11 +30,11 @@ services:
       - CUBEJS_DB_TYPE=postgres
       - CUBEJS_DEV_MODE=true
       - RUST_BACKTRACE=full
-      - CUBEJS_API_SECRET=your-secret-key  # Replace with a strong, unique key
+      - CUBEJS_API_SECRET=${CUBEJS_API_SECRET}
       - CUBEJS_DB_HOST=postgres
-      - CUBEJS_DB_NAME=gc_db
-      - CUBEJS_DB_USER=postgres
-      - CUBEJS_DB_PASS=root_password
+      - CUBEJS_DB_NAME=${POSTGRES_DB}
+      - CUBEJS_DB_USER=${POSTGRES_USER}
+      - CUBEJS_DB_PASS=${POSTGRES_PASSWORD}
       - CUBEJS_DB_PORT=5432
     volumes:
       - .:/cube/conf
@@ -48,14 +48,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: gc_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - backend-network
-      
 
   django:
     image: silverwatchbackend
@@ -66,16 +65,13 @@ services:
       - .env
     volumes:
       - .:/app/
-      - static_volume:/app/static  # Mount volume for static files
-      - media_volume:/app/media    # Mount volume for media files
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - logs:/app/logs  # Ensure logs are persistent
     depends_on:
       - postgres  
       - redis
       - emqx
-    command: >
-      sh -c "cd silver_watch && 
-      python manage.py migrate | tee -a /app/logs/output.log || echo 'migrate failed' | tee -a /app/logs/output.log; 
-            gunicorn --bind 0.0.0.0:8000 silver_watch.wsgi:application"
     networks:
       - backend-network
 
@@ -83,8 +79,8 @@ services:
     image: nginx:alpine
     volumes:
       - ./nginx:/etc/nginx/conf.d
-      - static_volume:/app/static  # Serve static files
-      - media_volume:/app/media    # Serve media files
+      - static_volume:/app/static
+      - media_volume:/app/media
     ports:
       - "80:80"
     depends_on:
@@ -102,9 +98,9 @@ services:
   ftp:
     image: fauria/vsftpd
     environment:
-      - FTP_USER=user  # Your FTP username
-      - FTP_PASS=password  # Your FTP password
-      - PASV_ADDRESS=127.0.0.1  # You can replace with your server's IP or domain name
+      - FTP_USER=${FTP_USER}
+      - FTP_PASS=${FTP_PASS}
+      - PASV_ADDRESS=${PASV_ADDRESS}
       - PASV_MIN_PORT=21100
       - PASV_MAX_PORT=21110
       - FILE_OPEN_MODE=0666
@@ -112,10 +108,10 @@ services:
     ports:
       - "20:20"
       - "21:21"
-      - "21100-21110:21100-21110"  # FTP passive ports
+      - "21100-21110:21100-21110"
     volumes:
-      - static_volume:/home/vsftpd/static  # Map static files to FTP
-      - media_volume:/home/vsftpd/media    # Map media files to FTP
+      - static_volume:/home/vsftpd/static
+      - media_volume:/home/vsftpd/media
     networks:
       - backend-network
 
@@ -123,16 +119,16 @@ services:
     image: emqx:latest
     environment:
       - EMQX_LISTENERS__TCP__DEFAULT__BIND=1883
-      - EMQX_ADMIN_PASSWORD=user@12345  # Set admin password
-      - EMQX_ADMIN_USER=admin      # Set admin username
-      - EMQX_LOADED_MODULES=emqx_management,emqx_dashboard
+      - EMQX_ADMIN_USER=${EMQX_ADMIN_USER}
+      - EMQX_ADMIN_PASSWORD=${EMQX_ADMIN_PASSWORD}
+      - EMQX_LOADED_MODULES="[emqx_management, emqx_dashboard]"
     ports:
-      - "18083:18083"  # Management Dashboard
-      - "1883:1883"    # MQTT Broker
-      - "8080:8080"    # HTTP API
+      - "18083:18083"
+      - "1883:1883"
+      - "8080:8080"
     volumes:
-      - emqx_data:/opt/emqx/data    # Persistent data
-      - emqx_log:/opt/emqx/log      # Persistent logs
+      - emqx_data:/opt/emqx/data
+      - emqx_log:/opt/emqx/log
     networks:
       - backend-network
 
@@ -140,9 +136,10 @@ volumes:
   postgres_data:
   static_volume:
   media_volume:
+  logs:
   emqx_data:
   emqx_log:
 
 networks:
   backend-network:
-
+    driver: bridge

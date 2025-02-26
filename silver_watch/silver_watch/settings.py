@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 from decouple import config, Csv
+from celery.schedules import crontab
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.apple',
     'allauth.socialaccount.providers.google',
     "django_filters",
+    "celery",
 
     # django default apps
     'django.contrib.admin',
@@ -122,6 +124,7 @@ CHANNEL_LAYERS = {
         },
     }
 }
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -249,6 +252,22 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # ACCOUNT_EMAIL_SUBJECT_PREFIX = 'Tovu Sacco'
 
+# Clery config
+CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Africa/Nairobi"
+CELERY_BEAT_SCHEDULE = {
+    "send-reminder-emails": {
+        "task": "appointments.tasks.send_reminder_emails",
+        "schedule": crontab(minute="*/1"),
+    },
+}
+# MQTT Broker configuration
+MQTT_BROKER = config('MQTT_BROKER', default='emqx')
+MQTT_PORT = config('MQTT_PORT', default=1883, cast=int)
+MQTT_TOPIC = config('MQTT_TOPIC', default='sensor/data')
 # Mpesa credentials
 MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY')
 MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET')
