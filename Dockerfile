@@ -24,4 +24,4 @@ RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /
 USER appuser
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["sh", "-c", "cd silver_watch && celery -A silver_watch worker --loglevel=info --pool=threads --concurrency=4 | tee -a /app/logs/output.log && python manage.py migrate && gunicorn --bind 0.0.0.0:8000 silver_watch.wsgi:application"]
+CMD ["sh", "-c", "cd silver_watch && celery -A silver_watch worker --loglevel=info --pool=threads --concurrency=4 | tee -a /app/logs/output.log & cd silver_watch && python manage.py migrate && daphne -b 0.0.0.0 -p 8000 silver_watch.asgi:application"]

@@ -1,16 +1,14 @@
 import json
 import logging
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.contrib.auth import get_user_model
 from asgiref.sync import sync_to_async
-from .models import Conversation, Message
 
 logger = logging.getLogger(__name__)
 
-User = get_user_model()
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        from .models import Conversation, Message
         try:
             self.conversation_id = self.scope["url_route"]["kwargs"]["conversation_id"]
             self.room_group_name = f"chat_{self.conversation_id}"
@@ -34,6 +32,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             logger.error(f"WebSocket disconnect error: {str(e)}")
     async def receive(self, text_data):
+        from .models import Conversation, Message
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
         try:
             data = json.loads(text_data)
             message_text = data.get("message")
