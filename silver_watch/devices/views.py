@@ -14,13 +14,18 @@ from .mixins import ReadOnlyViewSet
 class DeviceViewSet(viewsets.ModelViewSet):
     """
     Viewset for managing devices.
-    Supports listing, retrieving, creating, updating, and deleting devices.
+    - Anyone can retrieve a device.
+    - Only authenticated users can list, create, update, and delete devices.
     """
     queryset = Device.objects.all()
     serializer_class = DeviceSerializer
-    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_class = DeviceFilter
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return []  # No authentication required for retrieving a device
+        return [permissions.IsAuthenticated()]
 
 
 class DeviceSettingsViewSet(viewsets.ModelViewSet):
