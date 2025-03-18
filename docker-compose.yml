@@ -57,10 +57,7 @@ services:
       - backend-network
 
   django:
-    image: silverwatchbackend
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    image: silverwatchbackend:latest
     env_file:
       - .env
     volumes:

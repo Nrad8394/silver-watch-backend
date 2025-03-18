@@ -22,6 +22,8 @@ class CustomUserViewSet(viewsets.ModelViewSet, RoleBasedQuerysetMixin):
     filterset_fields = ["role", "status"]
 
     def get_queryset(self):
+        # filter queryset based on user role
+        
         return self.get_filtered_queryset(CustomUser)
 
 
