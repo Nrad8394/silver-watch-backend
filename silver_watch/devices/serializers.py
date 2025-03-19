@@ -3,7 +3,6 @@ from .models import Device, DeviceSettings, DeviceMaintenance, DeviceReading
 
 
 class DeviceSerializer(serializers.ModelSerializer):
-    assigned_to = serializers.StringRelatedField(read_only=True)  # Show username instead of ID
 
     class Meta:
         model = Device

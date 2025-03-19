@@ -34,9 +34,6 @@ COPY ./silver_watch /app
 # Switch to non-root user only for execution
 USER appuser
 
-# Copy environment file securely
-# COPY --chown=appuser:appuser .env /.env
-
 # Expose application port
 EXPOSE 8000
 
@@ -44,8 +41,12 @@ EXPOSE 8000
 ENV DJANGO_SETTINGS_MODULE=silver_watch.settings
 ENV ENVFILE=/.env
 
-# Run the application
-CMD ["sh", "-c", "celery -A silver_watch worker --loglevel=info --pool=threads --concurrency=4 > /app/logs/celery.log 2>&1 & \
-    cd silver_watch && \
+# Start Celery and Daphne properly
+CMD ["sh", "-c", "cd silver_watch && \
+    python manage.py collectstatic --noinput && \
+    python manage.py makemigrations && \
     python manage.py migrate && \
+    celery -A silver_watch worker --loglevel=info --pool=threads --concurrency=4 & \
+    celery -A silver_watch beat --loglevel=info --pool=threads --concurrency=4 & \
+    cd silver_watch && \
     exec daphne -b 0.0.0.0 -p 8000 silver_watch.asgi:application"]

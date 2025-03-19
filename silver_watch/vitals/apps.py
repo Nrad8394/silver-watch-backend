@@ -10,3 +10,5 @@ class VitalsConfig(AppConfig):
     def ready(self):
         mqtt_thread = threading.Thread(target=start_mqtt_client, daemon=True)
         mqtt_thread.start()
+     # register tasks
+     
