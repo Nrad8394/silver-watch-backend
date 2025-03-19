@@ -233,11 +233,12 @@ CORS_ALLOW_METHODS = [
     'OPTIONS',
 ]
 
-ACCOUNT_LOGIN_METHODS = {'email', 'username'}
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_MAX_EMAIL_ADDRESSES = 2
 ACCOUNT_CHANGE_EMAIL = True
 ACCOUNT_PASSWORD_MIN_LENGTH = 8
@@ -263,6 +264,10 @@ CELERY_BEAT_SCHEDULE = {
     "send-reminder-emails": {
         "task": "appointments.tasks.send_reminder_emails",
         "schedule": crontab(minute="*/1"),
+    },
+    "check-device-connectivity": {
+        "task": "vitals.tasks.check_device_connectivity",
+        "schedule": crontab(minute="*/2"),  # Run every 2 minutes
     },
 }
 # MQTT Broker configuration
