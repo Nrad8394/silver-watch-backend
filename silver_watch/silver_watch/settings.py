@@ -342,18 +342,18 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'refresh_token',
     'JWT_AUTH_REFRESH_COOKIE_PATH': '/',
     'JWT_AUTH_SECURE': False,
-    'JWT_AUTH_HTTPONLY': True, 
-    'JWT_AUTH_SAMESITE': "lax",
-    'JWT_AUTH_RETURN_EXPIRATION': True,
-    'JWT_AUTH_COOKIE_USE_CSRF': False,
+    'JWT_AUTH_HTTPONLY': True,
+    'JWT_AUTH_SAMESITE': 'Lax',
+    'JWT_AUTH_RETURN_EXPIRATION': False,
+    'JWT_AUTH_COOKIE_USE_CSRF': True,
     'JWT_AUTH_COOKIE_ENFORCE_CSRF_ON_UNAUTHENTICATED': False,
 }
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": True,
-    "UPDATE_LAST_LOGIN": True,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": False,
 
     "ALGORITHM": "HS256",
     # "SIGNING_KEY": settings.SECRET_KEY,a
@@ -364,12 +364,6 @@ SIMPLE_JWT = {
     "JWK_URL": None,
     "LEEWAY": 0,
 
-    "COOKIE_NAME": "refresh_token",  # Custom refresh token cookie name
-    "COOKIE_SECURE": False,  # Change to True in production (HTTPS only)
-    "COOKIE_HTTPONLY": True,  # Prevents JavaScript from accessing it
-    "COOKIE_SAMESITE": "lax",  # Allows cross-site requests
-    "COOKIE_PATH": "/",  # Allows the cookie to be sent to any path
-    
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",

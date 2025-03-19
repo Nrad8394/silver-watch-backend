@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils.timezone import now, timedelta
+from django.db import transaction
 from .models import Device, DeviceMaintenance, DeviceReading
 
 
@@ -9,11 +10,15 @@ def check_device_status(sender, instance, **kwargs):
     """
     Alert when a device goes Offline or Critical.
     """
-    if instance.pk:
-        previous = Device.objects.get(pk=instance.pk)
-        if previous.status != instance.status:
-            if instance.status in ["Offline", "Critical"]:
-                print(f"⚠️ Alert: Device {instance.id} is now {instance.status}")
+    if instance.pk:  # This check ensures the device already exists
+        try:
+            previous = Device.objects.get(pk=instance.pk)
+            if previous.status != instance.status:
+                if instance.status in ["Offline", "Critical"]:
+                    print(f"⚠️ Alert: Device {instance.id} is now {instance.status}")
+        except Device.DoesNotExist:
+            # This is a new device, no status to compare
+            pass
 
 
 @receiver(post_save, sender=DeviceMaintenance)
@@ -21,23 +26,31 @@ def schedule_next_maintenance(sender, instance, created, **kwargs):
     """
     Auto-schedule next maintenance when one is completed.
     """
-    if created and instance.status == "Completed":
-        if instance.type == "Calibration":
-            next_date = now() + timedelta(days=90)  # Schedule in 3 months
-        elif instance.type == "Battery Replacement":
-            next_date = now() + timedelta(days=180)  # Schedule in 6 months
-        elif instance.type == "Firmware Update":
-            next_date = now() + timedelta(days=365)  # Schedule in 1 year
-        else:
-            next_date = now() + timedelta(days=120)  # Default: 4 months
+    # Only process completed maintenance records for existing devices
+    if created and instance.status == "Completed" and instance.device_id:
+        try:
+            # Use transaction to ensure database consistency
+            with transaction.atomic():
+                if instance.type == "Calibration":
+                    next_date = now() + timedelta(days=90)  # Schedule in 3 months
+                elif instance.type == "Battery Replacement":
+                    next_date = now() + timedelta(days=180)  # Schedule in 6 months
+                elif instance.type == "Firmware Update":
+                    next_date = now() + timedelta(days=365)  # Schedule in 1 year
+                else:
+                    next_date = now() + timedelta(days=120)  # Default: 4 months
 
-        DeviceMaintenance.objects.create(
-            device=instance.device,
-            type=instance.type,
-            status="Scheduled",
-            scheduled_for=next_date
-        )
-        print(f"✅ Next {instance.type} scheduled for {instance.device} on {next_date}")
+                # Create the next maintenance record safely
+                DeviceMaintenance.objects.create(
+                    device=instance.device,
+                    type=instance.type,
+                    status="Scheduled",
+                    scheduled_for=next_date
+                )
+                print(f"✅ Next {instance.type} scheduled for {instance.device} on {next_date}")
+        except Device.DoesNotExist:
+            # Skip if the device doesn't exist yet
+            pass
 
 
 @receiver(pre_save, sender=DeviceReading)

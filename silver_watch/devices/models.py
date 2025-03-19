@@ -22,7 +22,7 @@ class Device(models.Model):
     ]
     # ID with dynamically set year prefix
     id = models.CharField(
-        max_length=20, primary_key=True, unique=True, editable=False
+        max_length=20, primary_key=True, unique=True 
     )
     type = models.CharField(max_length=50, choices=TYPE_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES,default="Offline")

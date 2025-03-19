@@ -23,8 +23,14 @@ class CustomRegisterSerializer(RegisterSerializer):
     Custom Registration Serializer to handle role assignment and unique email validation.
     """
     role = serializers.ChoiceField(choices=CustomUser.ROLE_CHOICES, required=True)
+    username = serializers.CharField(required=False)  # Make username optional
 
+    def custom_signup(self, request, user):
+        return super().custom_signup(request, user)
     def save(self, request):
+        if not self.validated_data.get('username'):
+            email = self.validated_data.get('email', '')
+            self.validated_data['username'] = email.split('@')[0]  # Use part before @ as username
         try:
             user = super().save(request)
             user.role = self.validated_data.get('role')
