@@ -1,27 +1,51 @@
-# For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3-slim
+# Use a stable Python version
+ARG PYTHON_VERSION=3.12
+FROM python:${PYTHON_VERSION}-slim AS base
 
-EXPOSE 8000
-
-# Keeps Python from generating .pyc files in the container
+# Prevents Python from writing pyc files and buffers stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1
-
-# Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
-# define envfile
-ENV ENVFILE=/app/.env
-# Install pip requirements
-COPY requirements.txt .
-RUN python -m pip install -r requirements.txt
+# Set working directory
+WORKDIR /app/
 
-WORKDIR /app
+# Create a non-privileged user
+ARG UID=10001
+RUN adduser --disabled-password --gecos "" --home "/nonexistent" --shell "/usr/sbin/nologin" --no-create-home --uid "${UID}" appuser
+
+# Install system dependencies and clean up to reduce image size
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev gcc g++ python3-dev cmake make build-essential \
+    libopenblas-dev libx11-dev \
+    && rm -rf /var/lib/apt/lists/*  # Clean apt cache
+
+# Copy only requirements file first (to leverage Docker caching)
+COPY requirements.txt .
+
+# Install dependencies efficiently
+RUN pip install --no-cache-dir --no-deps -r requirements.txt
+
+# Create logs directory with correct permissions
+RUN mkdir -p /app/logs && chmod 755 /app/logs && chown appuser:appuser /app/logs
+
+# Copy source code
 COPY ./silver_watch /app
 
-# Creates a non-root user with an explicit UID and adds permission to access the /app folder
-# For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app && mkdir -p /app/logs && chown -R appuser /app/logs
+# Switch to non-root user only for execution
 USER appuser
 
-# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["sh", "-c", "cd silver_watch && celery -A silver_watch worker --loglevel=info --pool=threads --concurrency=4 | tee -a /app/logs/output.log & cd silver_watch && python manage.py migrate && daphne -b 0.0.0.0 -p 8000 silver_watch.asgi:application"]
+# Copy environment file securely
+# COPY --chown=appuser:appuser .env /.env
+
+# Expose application port
+EXPOSE 8000
+
+# Define Django settings and environment file
+ENV DJANGO_SETTINGS_MODULE=silver_watch.settings
+ENV ENVFILE=/.env
+
+# Run the application
+CMD ["sh", "-c", "celery -A silver_watch worker --loglevel=info --pool=threads --concurrency=4 > /app/logs/celery.log 2>&1 & \
+    cd silver_watch && \
+    python manage.py migrate && \
+    exec daphne -b 0.0.0.0 -p 8000 silver_watch.asgi:application"]

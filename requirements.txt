@@ -46,6 +46,7 @@ pycparser
 pydotplus
 PyJWT
 PyMySQL
+psycopg2
 pyOpenSSL
 pyparsing
 python-dateutil
