@@ -46,6 +46,7 @@ CMD ["sh", "-c", "cd silver_watch && \
     python manage.py collectstatic --noinput && \
     python manage.py makemigrations && \
     python manage.py migrate && \
+    cd silver_watch && \
     celery -A silver_watch worker --loglevel=info --pool=threads --concurrency=4 & \
     celery -A silver_watch beat --loglevel=info --pool=threads --concurrency=4 & \
     cd silver_watch && \

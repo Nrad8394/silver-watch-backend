@@ -45,12 +45,12 @@ services:
     depends_on:
       - postgres
     networks:
-      - backend-network
+      - silver-watch-backend-network
 
   postgres:
     image: postgres:13
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -58,7 +58,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - backend-network
+      - silver-watch-backend-network
 
   django:
     image: silverwatchbackend:latest
@@ -74,7 +74,7 @@ services:
       - redis
       - emqx
     networks:
-      - backend-network
+      - silver-watch-backend-network
 
   nginx:
     image: nginx:alpine
@@ -83,38 +83,44 @@ services:
       - static_volume:/app/static
       - media_volume:/app/media
     ports:
-      - "80:80"
+      - "801:80"
     depends_on:
       - django
     networks:
-      - backend-network
+      - silver-watch-backend-network
 
   redis:
     image: redis:alpine
-    ports:
-      - "6379:6379"
+    restart: always
+    # ports:
+    #   - "6379:6379"
     networks:
-      - backend-network
+      - silver-watch-backend-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  ftp:
-    image: fauria/vsftpd
-    environment:
-      - FTP_USER=${FTP_USER}
-      - FTP_PASS=${FTP_PASS}
-      - PASV_ADDRESS=${PASV_ADDRESS}
-      - PASV_MIN_PORT=21100
-      - PASV_MAX_PORT=21110
-      - FILE_OPEN_MODE=0666
-      - LOCAL_UMASK=022
-    ports:
-      - "20:20"
-      - "21:21"
-      - "21100-21110:21100-21110"
-    volumes:
-      - static_volume:/home/vsftpd/static
-      - media_volume:/home/vsftpd/media
-    networks:
-      - backend-network
+  # ftp:
+  #   image: fauria/vsftpd
+  #   environment:
+  #     - FTP_USER=${FTP_USER}
+  #     - FTP_PASS=${FTP_PASS}
+  #     - PASV_ADDRESS=${PASV_ADDRESS}
+  #     - PASV_MIN_PORT=21100
+  #     - PASV_MAX_PORT=21110
+  #     - FILE_OPEN_MODE=0666
+  #     - LOCAL_UMASK=022
+  #   ports:
+  #     - "20:20"
+  #     - "21:21"
+  #     - "21100-21110:21100-21110"
+  #   volumes:
+  #     - static_volume:/home/vsftpd/static
+  #     - media_volume:/home/vsftpd/media
+  #   networks:
+  #     - silver-watch-backend-network
 
   emqx:
     image: emqx:latest
@@ -131,7 +137,7 @@ services:
       - emqx_data:/opt/emqx/data
       - emqx_log:/opt/emqx/log
     networks:
-      - backend-network
+      - silver-watch-backend-network
 
 volumes:
   postgres_data:
@@ -143,5 +149,5 @@ volumes:
   cube_store_data: 
 
 networks:
-  backend-network:
+  silver-watch-backend-network:
     driver: bridge
