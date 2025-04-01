@@ -141,7 +141,7 @@ DATABASES = {
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOSTER'),
+        'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT'),
     }
 }
@@ -209,9 +209,14 @@ AUTHENTICATION_BACKENDS = [
 # cors configurations
 # Allow frontend to send credentials (cookies, auth headers)
 CORS_ALLOW_CREDENTIALS = True  # Add this line
-CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", "").split(",")
-CSRF_TRUSTED_ORIGINS = config("CORS_ALLOWED_ORIGINS", "").split(",")
-# CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://127.0.0.1",
+    "http://127.0.0.1:3000",
+] + [f"http://localhost:{port}" for port in range(800, 900)]  
+
+CORS_ALLOW_ALL_ORIGINS = True
 # Allow all headers and methods
 CORS_ALLOW_HEADERS = [
     'content-type',
@@ -233,19 +238,28 @@ CORS_ALLOW_METHODS = [
     'OPTIONS',
 ]
 
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_AUTHENTICATION_METHOD='email'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = {
+    "username": {"required": False},
+    "email": {"required": True},
+}
+SIGNUP_FIELDS = {
+    "username": {"required": False},
+    "email": {"required": True},
+}
 ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_MAX_EMAIL_ADDRESSES = 2
 ACCOUNT_CHANGE_EMAIL = True
 ACCOUNT_PASSWORD_MIN_LENGTH = 8
 
+
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_HOST = config('EMAIL_HOST_USER')
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_USE_TLS = False  # Ensure this is False
@@ -274,18 +288,19 @@ CELERY_BEAT_SCHEDULE = {
 MQTT_BROKER = config('MQTT_BROKER', default='emqx')
 MQTT_PORT = config('MQTT_PORT', default=1883, cast=int)
 MQTT_TOPIC = config('MQTT_TOPIC', default='sensor/data')
-# Mpesa credentials
-MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY')
-MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET')
-MPESA_SHORTCODE = config('MPESA_SHORTCODE')
-MPESA_EXPRESS_SHORTCODE = config('MPESA_EXPRESS_SHORTCODE')
-MPESA_PASSKEY = config('MPESA_PASSKEY')
-MPESA_INITIATOR_USERNAME = config('MPESA_INITIATOR_USERNAME')
-MPESA_INITIATOR_SECURITY_CREDENTIAL = config('MPESA_INITIATOR_SECURITY_CREDENTIAL')
-MPESA_ENVIRONMENT = config('MPESA_ENVIRONMENT')
-PARTY_B=config('PARTY_B')
-TRANSACTION_TYPE=config('TRANSACTION_TYPE')
-# REST Framework configuration
+
+# # Mpesa credentials
+# MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY')
+# MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET')
+# MPESA_SHORTCODE = config('MPESA_SHORTCODE')
+# MPESA_EXPRESS_SHORTCODE = config('MPESA_EXPRESS_SHORTCODE')
+# MPESA_PASSKEY = config('MPESA_PASSKEY')
+# MPESA_INITIATOR_USERNAME = config('MPESA_INITIATOR_USERNAME')
+# MPESA_INITIATOR_SECURITY_CREDENTIAL = config('MPESA_INITIATOR_SECURITY_CREDENTIAL')
+# MPESA_ENVIRONMENT = config('MPESA_ENVIRONMENT')
+# PARTY_B=config('PARTY_B')
+# TRANSACTION_TYPE=config('TRANSACTION_TYPE')
+
 # REST Framework configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

@@ -28,26 +28,29 @@ RUN pip install --no-cache-dir --no-deps -r requirements.txt
 # Create logs directory with correct permissions
 RUN mkdir -p /app/logs && chmod 755 /app/logs && chown appuser:appuser /app/logs
 
-# Copy source code
-COPY ./silver_watch /app
+# Install development tools
+RUN pip install --no-cache-dir \
+    watchfiles supervisor
 
-# Switch to non-root user only for execution
-USER appuser
+# Copy source code after dependency installation (to optimize Docker caching)
+COPY . /app/
+
+# Copy entrypoint and supervisor configuration
+COPY entrypoint.sh supervisord.conf /app/
+RUN chmod +x /app/entrypoint.sh
+
 
 # Expose application port
 EXPOSE 8000
 
 # Define Django settings and environment file
+ARG ENVFILE
 ENV DJANGO_SETTINGS_MODULE=silver_watch.settings
-ENV ENVFILE=/.env
+# Allow external env file override
+ENV ENVFILE=${ENVFILE:-/app/.env}  
 
-# Start Celery and Daphne properly
-CMD ["sh", "-c", "cd silver_watch && \
-    python manage.py collectstatic --noinput && \
-    python manage.py makemigrations && \
-    python manage.py migrate && \
-    cd silver_watch && \
-    celery -A silver_watch worker --loglevel=info --pool=threads --concurrency=4 & \
-    celery -A silver_watch beat --loglevel=info --pool=threads --concurrency=4 & \
-    cd silver_watch && \
-    exec daphne -b 0.0.0.0 -p 8000 silver_watch.asgi:application"]
+# Ensure entrypoint.sh is executable
+RUN chmod +x /app/entrypoint.sh
+
+# Set entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
